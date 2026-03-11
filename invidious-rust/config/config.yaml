@@ -1,0 +1,72 @@
+# Invidious Configuration File
+# Copy this to config.yaml and modify as needed
+
+# Database configuration
+# Option 1: Using individual parameters
+# db:
+#   user: invidious
+#   password: password
+#   host: localhost
+#   port: 5432
+#   dbname: invidious
+
+# Option 2: Using database URL (12-Factor style)
+# database_url: postgres://invidious:password@localhost:5432/invidious
+
+# Server settings
+port: 3000
+host_binding: "0.0.0.0"
+
+# Logging
+output: STDOUT
+log_level: info
+colorize_logs: false
+
+# HMAC key for CSRF tokens (generate a secure random string)
+hmac_key: ""
+
+# Domain for absolute URLs
+# domain: "your-domain.com"
+
+# Jobs configuration
+channel_threads: 1
+channel_refresh_interval: "30m"
+feed_threads: 1
+full_refresh: false
+
+# Feature flags
+popular_enabled: true
+captcha_enabled: true
+login_enabled: true
+registration_enabled: true
+statistics_enabled: false
+hsts: true
+
+# Default user preferences
+default_user_preferences:
+  locale: "en-US"
+  region: "US"
+  max_results: 40
+  dark_mode: ""
+  player_style: "invidious"
+  quality: "dash"
+  quality_dash: "auto"
+  default_home: "Popular"
+  feed_menu:
+    - "Popular"
+    - "Trending"
+    - "Subscriptions"
+    - "Playlists"
+  autoplay: false
+  continue_autoplay: true
+  preload: true
+  comments:
+    - "youtube"
+    - ""
+  related_videos: true
+  sort: "published"
+  speed: 1.0
+  volume: 100
+  vr_mode: true
+  local: false
+  listen: false
