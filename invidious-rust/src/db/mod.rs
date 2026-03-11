@@ -2,6 +2,17 @@
 //!
 //! Provides database access using PostgreSQL.
 
+pub mod annotations;
+pub mod channel_videos;
+pub mod channels;
+pub mod migrations;
+pub mod nonces;
+pub mod playlists;
+pub mod sessions;
+pub mod statistics;
+pub mod users;
+pub mod videos;
+
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 /// Database connection pool.
