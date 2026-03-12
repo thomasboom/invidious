@@ -9,6 +9,7 @@ pub mod feeds;
 pub mod home;
 pub mod login;
 pub mod playlists;
+pub mod proxy;
 pub mod search;
 pub mod watch;
 
@@ -16,16 +17,72 @@ use crate::config;
 use crate::templates::TemplateEngine;
 use api::AppState;
 use axum::{
+    extract::Path,
+    response::IntoResponse,
     routing::{get, post},
     Router,
 };
+use axum::http::{header, Method, Request, StatusCode};
+use tower::ServiceExt;
+use tower_http::services::ServeDir;
+
+const CACHE_CONTROL: &str = "max-age=2629800";
+
+async fn serve_static(Path(path): Path<String>) -> impl IntoResponse {
+    let serve_dir = ServeDir::new("assets");
+    let mut req = Request::new(());
+    *req.uri_mut() = format!("/{}", path).parse().unwrap();
+    *req.method_mut() = Method::GET;
+    
+    let mut response = serve_dir.oneshot(req).await.unwrap();
+    
+    if response.status() == StatusCode::NOT_FOUND {
+        return (StatusCode::NOT_FOUND, "Not found").into_response();
+    }
+    
+    response.headers_mut().insert(
+        header::CACHE_CONTROL,
+        CACHE_CONTROL.parse().unwrap(),
+    );
+    
+    response.into_response()
+}
 
 /// Create the main router for the application.
 pub fn create_router(config: config::Config, templates: TemplateEngine) -> Router<()> {
     let state = AppState::new(config, templates);
-    
+    let static_assets = proxy::StaticAssets::new();
+
     Router::new()
         .layer(axum::Extension(state.clone()))
+        .layer(axum::Extension(static_assets))
+        // Static files with cache headers
+        .route("/", get(serve_static))
+        .route("/css/*path", get(serve_static))
+        .route("/js/*path", get(serve_static))
+        .route("/fonts/*path", get(serve_static))
+        .route("/favicon.ico", get(serve_static))
+        .route("/favicon-16x16.png", get(serve_static))
+        .route("/favicon-32x32.png", get(serve_static))
+        .route("/apple-touch-icon.png", get(serve_static))
+        .route("/android-chrome-192x192.png", get(serve_static))
+        .route("/android-chrome-512x512.png", get(serve_static))
+        .route("/site.webmanifest", get(serve_static))
+        .route("/browserconfig.xml", get(serve_static))
+        .route("/safari-pinned-tab.svg", get(serve_static))
+        .route("/mstile-150x150.png", get(serve_static))
+        .route("/hashtag.svg", get(serve_static))
+        .route("/invidious-colored-vector.svg", get(serve_static))
+        .route("/.well-known/dnt-policy.txt", get(serve_static))
+        .route("/robots.txt", get(serve_static))
+        // Image proxy routes
+        .route("/ggpht/*path", get(proxy::StaticAssets::ggpht))
+        .route("/vi/:id/*path", get(proxy::StaticAssets::video_thumbnail))
+        .route("/yts/img/:name", get(proxy::StaticAssets::yts_image))
+        .route("/sb/:authority/:id/:storyboard/:index", get(proxy::StaticAssets::storyboard))
+        // Video playback proxy
+        .route("/videoplayback", get(proxy::StaticAssets::videoplayback))
+        .route("/videoplayback/*path", get(proxy::StaticAssets::videoplayback))
         // Home routes
         .route("/", get(home::home))
         .route("/privacy", get(home::privacy))
