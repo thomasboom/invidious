@@ -1,7 +1,6 @@
 //! HTTP routes for Invidious.
 //!
-//! This module provides all HTTP route handlers for the Invidious application,
-//! including home, watch, channels, playlists, search, feeds, login, and account routes.
+//! This module provides all HTTP route handlers for the Invidious application.
 
 pub mod account;
 pub mod api;
@@ -13,28 +12,20 @@ pub mod playlists;
 pub mod search;
 pub mod watch;
 
-use crate::{config, db};
+use crate::config;
+use api::AppState;
 use axum::{
     routing::{get, post},
     Router,
+    Extension,
 };
 
 /// Create the main router for the application.
-///
-/// This function registers all HTTP routes organized by functionality:
-/// - Home routes (/, /privacy, /licenses, /redirect)
-/// - Watch routes (/watch, /watch/:id, /live/:id, /shorts/:id, /clip/:clip, /embed/:id)
-/// - Channel routes (/channel/:ucid, /user/:user, /c/:user, /@:user)
-/// - Playlist routes (/playlist, /create_playlist, /delete_playlist, /edit_playlist)
-/// - Search routes (/search, /results, /hashtag/:hashtag)
-/// - Feed routes (/feed/popular, /feed/trending, /feed/subscriptions, /feed/history)
-/// - Login routes (/login, /signout)
-/// - Account routes (/preferences, /change_password, /delete_account)
-/// - API v1 routes (/api/v1/*)
-///
-/// Returns a configured Axum router with all routes registered.
-pub fn create_router() -> Router {
+pub fn create_router(config: config::Config) -> Router<()> {
+    let state = AppState::new(config);
+    
     Router::new()
+        .layer(axum::Extension(state.clone()))
         // Home routes
         .route("/", get(home::home))
         .route("/privacy", get(home::privacy))
@@ -145,35 +136,6 @@ pub fn create_router() -> Router {
         .route("/subscription_manager", get(channels::subscription_manager))
         
         // API routes
-        .nest("/api/v1", api::create_router())
-}
-
-/// Application state that can be shared across route handlers.
-///
-/// This struct holds references to shared resources like the database
-/// connection pool and application configuration.
-#[derive(Clone)]
-pub struct AppState {
-    /// Database connection pool.
-    pub db: Option<db::DbPool>,
-    /// Application configuration.
-    pub config: config::Config,
-}
-
-impl AppState {
-    /// Create a new application state.
-    pub fn new(config: config::Config) -> Self {
-        Self {
-            db: None,
-            config,
-        }
-    }
-    
-    /// Create a new application state with database.
-    pub fn with_db(config: config::Config, db: db::DbPool) -> Self {
-        Self {
-            db: Some(db),
-            config,
-        }
-    }
+        .route("/api/v1/", get(api::v1_index))
+        .nest("/api/v1", api::create_router(state.clone()))
 }

@@ -56,7 +56,7 @@ async fn main() -> anyhow::Result<()> {
     } else {
         config.log_level.as_str()
     };
-    let output = config.output;
+    let output = config.output.clone();
 
     // Initialize logging
     let filter = tracing_subscriber::EnvFilter::try_from_default_env()
@@ -99,7 +99,7 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // Create router
-    let app = invidious::routes::create_router();
+    let app = invidious::routes::create_router(config);
 
     // Create address
     let addr: SocketAddr = format!("{}:{}", host, port)
