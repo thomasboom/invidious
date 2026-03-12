@@ -17,5 +17,9 @@ pub mod yt_backend;
 pub mod jobs;
 /// HTML template rendering.
 pub mod templates;
+/// Authentication service.
+pub mod auth;
+/// Middleware components.
+pub mod middleware;
 
 pub use config::Config;

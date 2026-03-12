@@ -3,7 +3,7 @@
 //! Handles user login, signout, and session management.
 
 use axum::{
-    extract::{Form, Query, Extension},
+    extract::Extension,
     response::Html,
 };
 use serde::Deserialize;
@@ -18,8 +18,6 @@ pub struct LoginForm {
     pub email: Option<String>,
     #[serde(default)]
     pub password: Option<String>,
-    #[serde(default)]
-    pub remember_me: Option<String>,
     #[serde(default)]
     pub captcha: Option<String>,
 }
@@ -38,10 +36,14 @@ pub struct LoginParams {
 /// Login page handler.
 pub async fn login_page(
     Extension(state): Extension<AppState>,
-    Query(params): Query<LoginParams>,
+    axum::extract::Query(params): axum::extract::Query<LoginParams>,
 ) -> Html<String> {
-    let referer = params.r.as_deref().unwrap_or("/");
+    let referer = params.r.as_deref().unwrap_or("/feed/subscriptions");
     
+    if !state.config.login_enabled {
+        return Html("<html><body><h1>Login disabled</h1></body></html>".to_string());
+    }
+
     let base_data = BaseTemplateData {
         current_page: "/login".to_string(),
         ..Default::default()
@@ -50,7 +52,10 @@ pub async fn login_page(
     let login_context = serde_json::json!({
         "referer": referer,
         "csrf_token": "",
-        "error": ""
+        "error": "",
+        "login_enabled": state.config.login_enabled,
+        "registration_enabled": state.config.registration_enabled,
+        "captcha_enabled": state.config.captcha_enabled,
     });
     
     match state.templates.render_with_data("login.html", &login_context) {
@@ -64,13 +69,18 @@ pub async fn login_page(
     }
 }
 
-/// Login handler.
-pub async fn login(Form(_form): Form<LoginForm>) -> Html<&'static str> {
-    Html("<html><body><h1>Login submitted</h1></body></html>")
+/// Login handler - stub implementation.
+pub async fn login(
+    Extension(_state): Extension<AppState>,
+    axum::extract::Form(_form): axum::extract::Form<LoginForm>,
+) -> Html<String> {
+    Html("<html><body><h1>Login submitted</h1></body></html>".to_string())
 }
 
-/// Signout handler.
-pub async fn signout(Query(params): Query<LoginParams>) -> Html<String> {
+/// Signout handler - stub implementation.
+pub async fn signout(
+    axum::extract::Query(params): axum::extract::Query<LoginParams>,
+) -> Html<String> {
     let referer = params.r.as_deref().unwrap_or("/");
     Html(format!(
         "<html><body><h1>Signed out</h1><p>Referer: {}</p></body></html>",

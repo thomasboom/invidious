@@ -137,5 +137,5 @@ pub fn create_router(config: config::Config, templates: TemplateEngine) -> Route
         
         // API routes
         .route("/api/v1/", get(api::v1_index))
-        .nest("/api/v1", api::create_router(state.clone()))
+        .nest("/api/v1", api::create_router(state))
 }

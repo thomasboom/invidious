@@ -3,14 +3,13 @@
 //! Handles user preferences, password changes, account deletion, and history.
 
 use axum::{
-    extract::{Form, Query, Extension},
+    extract::Extension,
     response::Html,
 };
 use serde::Deserialize;
 
 use super::api::AppState;
 use crate::templates::BaseTemplateData;
-use crate::config::ConfigPreferences;
 
 /// Query parameters for account routes.
 #[derive(Debug, Deserialize)]
@@ -41,55 +40,17 @@ pub struct AccountForm {
     #[serde(default)]
     pub callback: Option<String>,
     #[serde(default)]
-    pub auth: Option<String>,
-    #[serde(default)]
-    pub title: Option<String>,
-    #[serde(default)]
-    pub annotations: Option<String>,
-    #[serde(default)]
-    pub autoplay: Option<String>,
-    #[serde(default)]
-    pub captions: Option<String>,
-    #[serde(default)]
-    pub comments: Option<String>,
-    #[serde(default)]
     pub continue_url: Option<String>,
     #[serde(default)]
     pub dark_mode: Option<String>,
     #[serde(default)]
-    pub description: Option<String>,
-    #[serde(default)]
-    pub hd: Option<String>,
-    #[serde(default)]
-    pub local: Option<String>,
-    #[serde(default)]
-    pub max_results: Option<String>,
-    #[serde(default)]
-    pub notifications: Option<String>,
-    #[serde(default)]
-    pub player: Option<String>,
-    #[serde(default)]
-    pub quality: Option<String>,
-    #[serde(default)]
-    pub related_videos: Option<String>,
-    #[serde(default)]
-    pub sort: Option<String>,
-    #[serde(default)]
-    pub speed: Option<String>,
-    #[serde(default)]
-    pub subtitles: Option<String>,
-    #[serde(default)]
-    pub theme: Option<String>,
-    #[serde(default)]
     pub thin_mode: Option<String>,
-    #[serde(default)]
-    pub video_mixed: Option<String>,
 }
 
 /// Preferences page handler.
 pub async fn preferences(
     Extension(state): Extension<AppState>,
-    Query(params): Query<AccountParams>,
+    axum::extract::Query(params): axum::extract::Query<AccountParams>,
 ) -> Html<String> {
     let referer = params.r.as_deref().unwrap_or("/");
     
@@ -99,7 +60,7 @@ pub async fn preferences(
     };
     
     let prefs_context = serde_json::json!({
-        "preferences": ConfigPreferences::default(),
+        "preferences": state.config.default_user_preferences.clone(),
         "csrf_token": "",
         "referer": referer
     });
@@ -115,13 +76,18 @@ pub async fn preferences(
     }
 }
 
-/// Update preferences handler.
-pub async fn update_preferences(Form(_form): Form<AccountForm>) -> Html<String> {
+/// Update preferences handler - stub.
+pub async fn update_preferences(
+    Extension(_state): Extension<AppState>,
+    axum::extract::Form(_form): axum::extract::Form<AccountForm>,
+) -> Html<String> {
     Html("<html><body><h1>Preferences Updated</h1></body></html>".to_string())
 }
 
-/// Toggle theme handler.
-pub async fn toggle_theme(Query(params): Query<AccountParams>) -> Html<String> {
+/// Toggle theme handler - stub.
+pub async fn toggle_theme(
+    axum::extract::Query(params): axum::extract::Query<AccountParams>,
+) -> Html<String> {
     let theme = params.theme.as_deref().unwrap_or("light");
     Html(format!(
         "<html><body><h1>Theme toggled to: {}</h1></body></html>",
@@ -129,51 +95,66 @@ pub async fn toggle_theme(Query(params): Query<AccountParams>) -> Html<String> {
     ))
 }
 
-/// Data control page handler.
-pub async fn data_control(Query(params): Query<AccountParams>) -> Html<String> {
+/// Data control page handler - stub.
+pub async fn data_control(
+    axum::extract::Query(params): axum::extract::Query<AccountParams>,
+) -> Html<String> {
     Html(format!(
         "<html><body><h1>Data Control</h1><p>Return to: {}</p></body></html>",
         params.r.as_deref().unwrap_or("/")
     ))
 }
 
-/// Update data control handler.
-pub async fn update_data_control(Form(_form): Form<AccountForm>) -> Html<String> {
+/// Update data control handler - stub.
+pub async fn update_data_control(
+    Extension(_state): Extension<AppState>,
+    axum::extract::Form(_form): axum::extract::Form<AccountForm>,
+) -> Html<String> {
     Html("<html><body><h1>Data Control Updated</h1></body></html>".to_string())
 }
 
-/// Change password page handler.
+/// Change password page handler - stub.
 pub async fn change_password_get() -> Html<&'static str> {
     Html("<html><body><h1>Change Password</h1></body></html>")
 }
 
-/// Change password handler.
-pub async fn change_password_post(Form(_form): Form<AccountForm>) -> Html<String> {
+/// Change password handler - stub.
+pub async fn change_password_post(
+    Extension(_state): Extension<AppState>,
+    axum::extract::Form(_form): axum::extract::Form<AccountForm>,
+) -> Html<String> {
     Html("<html><body><h1>Password Changed</h1></body></html>".to_string())
 }
 
-/// Delete account page handler.
+/// Delete account page handler - stub.
 pub async fn delete_account_get() -> Html<&'static str> {
     Html("<html><body><h1>Delete Account</h1></body></html>")
 }
 
-/// Delete account handler.
-pub async fn delete_account_post(Form(_form): Form<AccountForm>) -> Html<String> {
+/// Delete account handler - stub.
+pub async fn delete_account_post(
+    Extension(_state): Extension<AppState>,
+    axum::extract::Form(_form): axum::extract::Form<AccountForm>,
+) -> Html<String> {
     Html("<html><body><h1>Account Deleted</h1></body></html>".to_string())
 }
 
-/// Clear watch history page handler.
+/// Clear watch history page handler - stub.
 pub async fn clear_history_get() -> Html<&'static str> {
     Html("<html><body><h1>Clear Watch History</h1></body></html>")
 }
 
-/// Clear watch history handler.
-pub async fn clear_history_post(Form(_form): Form<AccountForm>) -> Html<String> {
+/// Clear watch history handler - stub.
+pub async fn clear_history_post(
+    Extension(_state): Extension<AppState>,
+) -> Html<String> {
     Html("<html><body><h1>Watch History Cleared</h1></body></html>".to_string())
 }
 
-/// Authorize token page handler.
-pub async fn authorize_token_get(Query(params): Query<AccountParams>) -> Html<String> {
+/// Authorize token page handler - stub.
+pub async fn authorize_token_get(
+    axum::extract::Query(params): axum::extract::Query<AccountParams>,
+) -> Html<String> {
     let callback = params.page.as_deref().unwrap_or("/");
     Html(format!(
         "<html><body><h1>Authorize Token</h1><p>Callback: {}</p></body></html>",
@@ -181,17 +162,23 @@ pub async fn authorize_token_get(Query(params): Query<AccountParams>) -> Html<St
     ))
 }
 
-/// Authorize token handler.
-pub async fn authorize_token_post(Form(_form): Form<AccountForm>) -> Html<String> {
+/// Authorize token handler - stub.
+pub async fn authorize_token_post(
+    Extension(_state): Extension<AppState>,
+    axum::extract::Form(_form): axum::extract::Form<AccountForm>,
+) -> Html<String> {
     Html("<html><body><h1>Token Authorized</h1></body></html>".to_string())
 }
 
-/// Token manager page handler.
+/// Token manager page handler - stub.
 pub async fn token_manager() -> Html<&'static str> {
     Html("<html><body><h1>Token Manager</h1></body></html>")
 }
 
-/// Token AJAX handler.
-pub async fn token_ajax(Form(_form): Form<AccountForm>) -> Html<String> {
+/// Token AJAX handler - stub.
+pub async fn token_ajax(
+    Extension(_state): Extension<AppState>,
+    axum::extract::Form(_form): axum::extract::Form<AccountForm>,
+) -> Html<String> {
     Html("{}".to_string())
 }
