@@ -1,0 +1,33 @@
+<div class="pure-u-1 pure-u-md-1-4">
+    <div class="h-box">
+        <div class="thumbnail">
+            {% if not thin_mode %}
+                <a tabindex="-1" href="/playlist?list={{ playlist.id }}">
+                    {% if playlist.thumbnail %}
+                    <img loading="lazy" class="thumbnail" src="{{ playlist.thumbnail }}" alt="" />
+                    {% else %}
+                    <img loading="lazy" class="thumbnail" src="/playlist.png" alt="" />
+                    {% endif %}
+                </a>
+            {% else %}
+                <div class="thumbnail-placeholder"></div>
+            {% endif %}
+
+            <div class="bottom-right-overlay">
+                <p class="length">{{ playlist.video_count }} videos</p>
+            </div>
+        </div>
+
+        <div class="video-card-row">
+            <a href="/playlist?list={{ playlist.id }}"><p dir="auto">{{ playlist.title }}</p></a>
+        </div>
+
+        <div class="video-card-row flexible">
+            <div class="flex-left">
+                <a href="/channel/{{ playlist.author_id }}">
+                    <p class="channel-name" dir="auto">{{ playlist.author }}</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -13,16 +13,16 @@ pub mod search;
 pub mod watch;
 
 use crate::config;
+use crate::templates::TemplateEngine;
 use api::AppState;
 use axum::{
     routing::{get, post},
     Router,
-    Extension,
 };
 
 /// Create the main router for the application.
-pub fn create_router(config: config::Config) -> Router<()> {
-    let state = AppState::new(config);
+pub fn create_router(config: config::Config, templates: TemplateEngine) -> Router<()> {
+    let state = AppState::new(config, templates);
     
     Router::new()
         .layer(axum::Extension(state.clone()))

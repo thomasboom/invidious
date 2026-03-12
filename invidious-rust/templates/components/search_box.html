@@ -1,0 +1,10 @@
+<form{% if autofocus %}autofocus{% endif %} action="/search" method="get" class="pure-form">
+    {% if q %}
+    <input name="q" type="search" placeholder="Search" value="{{ q }}"{% if autofocus %} autofocus{% endif %}>
+    {% else %}
+    <input name="q" type="search" placeholder="Search"{% if autofocus %} autofocus{% endif %}>
+    {% endif %}
+    <button type="submit" class="pure-button pure-button-primary">
+        <i class="icon ion-ios-search"></i>
+    </button>
+</form>

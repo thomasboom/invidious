@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block header %}
+<meta name="description" content="Your subscriptions">
+<title>Subscriptions - Invidious</title>
+{% endblock header %}
+
+{% block content %}
+<div class="h-box">
+    <h1>Subscriptions</h1>
+</div>
+
+<div class="pure-g h-box">
+    <div style="align-self:flex-end" class="pure-u-2-3">
+        {% if playlist_id %}
+            <a href="/playlist?list={{ playlist_id }}">View as playlist</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="h-box">
+    <hr>
+</div>
+
+{% if user %}
+<div class="pure-g">
+    {% for video in videos %}
+        {% include "components/video_item.html" %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="h-box">
+    <p>Please <a href="/login">log in</a> to view your subscriptions.</p>
+</div>
+{% endif %}
+{% endblock content %}

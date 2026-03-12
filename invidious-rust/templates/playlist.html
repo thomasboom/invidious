@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block header %}
+<meta property="og:site_name" content="Invidious">
+<meta property="og:url" content="/playlist?list={{ playlist.id }}">
+<meta property="og:title" content="{{ playlist.title }}">
+<meta property="og:image" content="{{ playlist.thumbnail | default(value="/playlist.png") }}">
+<meta property="og:description" content="{{ playlist.description | default(value=playlist.title) }}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:url" content="/playlist?list={{ playlist.id }}">
+<meta name="twitter:title" content="{{ playlist.title }}">
+<meta name="twitter:description" content="{{ playlist.description | default(value=playlist.title) }}">
+<title>{{ playlist.title }} - Invidious</title>
+{% endblock header %}
+
+{% block content %}
+<div class="h-box">
+    <h1>{{ playlist.title }}</h1>
+</div>
+
+<div class="pure-g">
+    <div class="pure-u-1 pure-u-lg-1-5">
+        <div class="h-box">
+            <div class="thumbnail">
+                {% if playlist.thumbnail %}
+                <img src="{{ playlist.thumbnail }}" alt="" />
+                {% else %}
+                <img src="/playlist.png" alt="" />
+                {% endif %}
+            </div>
+        </div>
+
+        {% if playlist.description %}
+        <div class="h-box">
+            <p>{{ playlist.description }}</p>
+        </div>
+        {% endif %}
+
+        <div class="h-box">
+            <p>{{ playlist.video_count }} videos</p>
+            <p>by <a href="/channel/{{ playlist.author_id }}">{{ playlist.author }}</a></p>
+        </div>
+    </div>
+
+    <div class="pure-u-1 pure-u-lg-4-5">
+        <div class="pure-g">
+            {% for video in playlist.videos %}
+            <div class="pure-u-1 pure-u-md-1-2">
+                <div class="h-box">
+                    <div class="thumbnail">
+                        <a tabindex="-1" href="/watch?v={{ video.video_id }}&list={{ playlist.id }}&index={{ loop.index }}">
+                            <img loading="lazy" class="thumbnail" src="/vi/{{ video.video_id }}/mqdefault.jpg" alt="" />
+                        </a>
+                        <div class="bottom-right-overlay">
+                            {% if video.length_seconds > 0 %}
+                            <p class="length">{{ video.length_seconds | length_seconds }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="video-card-row">
+                        <a href="/watch?v={{ video.video_id }}&list={{ playlist.id }}&index={{ loop.index }}">
+                            <p dir="auto">{{ video.title }}</p>
+                        </a>
+                    </div>
+                    <div class="video-card-row">
+                        <a href="/channel/{{ video.author_id }}">
+                            <p class="channel-name" dir="auto">{{ video.author }}</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

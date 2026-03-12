@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block header %}
+<meta name="description" content="An alternative front-end to YouTube">
+<title>Popular - Invidious</title>
+{% endblock header %}
+
+{% block content %}
+<div class="pure-g h-box">
+    <div style="align-self:flex-end" class="pure-u-2-3">
+        {% if playlist_id %}
+            <a href="/playlist?list={{ playlist_id }}">View as playlist</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="h-box">
+    <hr>
+</div>
+
+<div class="pure-g">
+    {% for video in videos %}
+        {% include "components/video_item.html" %}
+    {% endfor %}
+</div>
+{% endblock content %}

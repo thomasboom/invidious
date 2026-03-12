@@ -1,0 +1,48 @@
+<div class="pure-u-1 pure-u-md-1-4">
+    <div class="h-box">
+        <div class="thumbnail">
+            {% if not thin_mode %}
+                <a tabindex="-1" href="/watch?v={{ video.id }}">
+                    <img loading="lazy" class="thumbnail" src="/vi/{{ video.id }}/mqdefault.jpg" alt="" />
+                </a>
+            {% else %}
+                <div class="thumbnail-placeholder"></div>
+            {% endif %}
+
+            <div class="bottom-right-overlay">
+                {% if video.live_now %}
+                    <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i>&nbsp;LIVE</p>
+                {% elif video.length_seconds > 0 %}
+                    <p class="length">{{ video.length_seconds | length_seconds }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="video-card-row">
+            <a href="/watch?v={{ video.id }}"><p dir="auto">{{ video.title }}</p></a>
+        </div>
+
+        <div class="video-card-row flexible">
+            <div class="flex-left">
+                <a href="/channel/{{ video.author_id }}">
+                    <p class="channel-name" dir="auto">{{ video.author }}
+                        {% if video.author_verified %}&nbsp;<i class="icon ion ion-md-checkmark-circle"></i>{% endif %}
+                    </p>
+                </a>
+            </div>
+        </div>
+
+        <div class="video-card-row flexible">
+            <div class="flex-left">
+                {% if video.published %}
+                    <p class="video-data" dir="auto">{{ video.published }}</p>
+                {% endif %}
+            </div>
+            {% if video.view_count %}
+            <div class="flex-right">
+                <p class="video-data" dir="auto">{{ video.view_count }} views</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

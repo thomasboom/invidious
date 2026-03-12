@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block header %}
+<title>{% if q %}{{ q }} - Search{% else %}Search{% endif %} - Invidious</title>
+{% endblock header %}
+
+{% block content %}
+{% include "components/search_box.html" %}
+
+<div class="h-box">
+    <hr>
+</div>
+
+<div class="pure-g">
+    {% if results %}
+        {% for item in results %}
+            {% if item.type == "video" %}
+                {% include "components/video_item.html" %}
+            {% elif item.type == "channel" %}
+                {% include "components/channel_item.html" %}
+            {% elif item.type == "playlist" %}
+                {% include "components/playlist_item.html" %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <div class="pure-u-1">
+            <div class="h-box">
+                <p>No results found.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% if next_page_token %}
+<div class="h-box">
+    <a href="/search?q={{ q }}&page={{ next_page_token }}">Next page</a>
+</div>
+{% endif %}
+{% endblock content %}

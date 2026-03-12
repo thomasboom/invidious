@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block header %}
+<title>{% if page_title %}{{ page_title }} - Invidious{% else %}Invidious{% endif %}</title>
+{% endblock header %}
+
+{% block content %}
+<div class="h-box">
+    {% if playlist_id %}
+    <a href="/playlist?list={{ playlist_id }}">View as playlist</a>
+    {% endif %}
+</div>
+
+<div class="h-box">
+    <hr>
+</div>
+
+<div class="pure-g">
+    {% for video in videos %}
+        {% include "components/video_item.html" %}
+    {% endfor %}
+</div>
+{% endblock content %}

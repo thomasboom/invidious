@@ -1,0 +1,31 @@
+<div class="sidebar">
+    <div class="h-box">
+        <a href="/">Popular</a>
+    </div>
+    <div class="h-box">
+        <a href="/feed/trending">Trending</a>
+    </div>
+    {% if user %}
+    <div class="h-box">
+        <a href="/feed/subscriptions">Subscriptions</a>
+    </div>
+    <div class="h-box">
+        <a href="/feed/playlists">Playlists</a>
+    </div>
+    <div class="h-box">
+        <a href="/feed/history">History</a>
+    </div>
+    {% endif %}
+    <div class="h-box">
+        <hr>
+    </div>
+    <div class="h-box">
+        <a href="/preferences">Preferences</a>
+    </div>
+    <div class="h-box">
+        <a href="/privacy">Privacy Policy</a>
+    </div>
+    <div class="h-box">
+        <a href="/licenses">Licenses</a>
+    </div>
+</div>

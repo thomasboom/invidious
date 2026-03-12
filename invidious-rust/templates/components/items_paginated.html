@@ -1,0 +1,9 @@
+<div class="pure-g">
+    {% block items %}{% endblock items %}
+</div>
+
+{% if next_continuation %}
+<div class="h-box">
+    <a href="?continuation={{ next_continuation }}">Load more</a>
+</div>
+{% endif %}

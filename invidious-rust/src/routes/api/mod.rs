@@ -13,26 +13,30 @@ use serde_json::Value as JsonValue;
 use crate::config::Config;
 use crate::db::DbPool;
 use crate::yt_backend::{YoutubeApi, SearchResult};
+use crate::templates::TemplateEngine;
 
 /// Application state that can be shared across route handlers.
 #[derive(Clone)]
 pub struct AppState {
     pub db: Option<DbPool>,
     pub config: Config,
+    pub templates: TemplateEngine,
 }
 
 impl AppState {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Config, templates: TemplateEngine) -> Self {
         Self {
             db: None,
             config,
+            templates,
         }
     }
 
-    pub fn with_db(config: Config, db: DbPool) -> Self {
+    pub fn with_db(config: Config, db: DbPool, templates: TemplateEngine) -> Self {
         Self {
             db: Some(db),
             config,
+            templates,
         }
     }
 

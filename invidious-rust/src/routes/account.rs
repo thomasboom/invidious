@@ -3,10 +3,14 @@
 //! Handles user preferences, password changes, account deletion, and history.
 
 use axum::{
-    extract::Form,
+    extract::{Form, Query, Extension},
     response::Html,
 };
 use serde::Deserialize;
+
+use super::api::AppState;
+use crate::templates::BaseTemplateData;
+use crate::config::ConfigPreferences;
 
 /// Query parameters for account routes.
 #[derive(Debug, Deserialize)]
@@ -83,11 +87,32 @@ pub struct AccountForm {
 }
 
 /// Preferences page handler.
-pub async fn preferences(axum::extract::Query(params): axum::extract::Query<AccountParams>) -> Html<String> {
-    Html(format!(
-        "<html><body><h1>Preferences</h1><p>Theme: {}</p></body></html>",
-        params.theme.as_deref().unwrap_or("system")
-    ))
+pub async fn preferences(
+    Extension(state): Extension<AppState>,
+    Query(params): Query<AccountParams>,
+) -> Html<String> {
+    let referer = params.r.as_deref().unwrap_or("/");
+    
+    let base_data = BaseTemplateData {
+        current_page: "/preferences".to_string(),
+        ..Default::default()
+    };
+    
+    let prefs_context = serde_json::json!({
+        "preferences": ConfigPreferences::default(),
+        "csrf_token": "",
+        "referer": referer
+    });
+    
+    match state.templates.render_with_data("preferences.html", &prefs_context) {
+        Ok(content) => {
+            match state.templates.render_base(&content, &base_data) {
+                Ok(full) => Html(full),
+                Err(_) => Html("<html><body>Error rendering template</body></html>".to_string()),
+            }
+        }
+        Err(_) => Html("<html><body>Error loading template</body></html>".to_string()),
+    }
 }
 
 /// Update preferences handler.
@@ -96,7 +121,7 @@ pub async fn update_preferences(Form(_form): Form<AccountForm>) -> Html<String> 
 }
 
 /// Toggle theme handler.
-pub async fn toggle_theme(axum::extract::Query(params): axum::extract::Query<AccountParams>) -> Html<String> {
+pub async fn toggle_theme(Query(params): Query<AccountParams>) -> Html<String> {
     let theme = params.theme.as_deref().unwrap_or("light");
     Html(format!(
         "<html><body><h1>Theme toggled to: {}</h1></body></html>",
@@ -105,7 +130,7 @@ pub async fn toggle_theme(axum::extract::Query(params): axum::extract::Query<Acc
 }
 
 /// Data control page handler.
-pub async fn data_control(axum::extract::Query(params): axum::extract::Query<AccountParams>) -> Html<String> {
+pub async fn data_control(Query(params): Query<AccountParams>) -> Html<String> {
     Html(format!(
         "<html><body><h1>Data Control</h1><p>Return to: {}</p></body></html>",
         params.r.as_deref().unwrap_or("/")
@@ -148,7 +173,7 @@ pub async fn clear_history_post(Form(_form): Form<AccountForm>) -> Html<String> 
 }
 
 /// Authorize token page handler.
-pub async fn authorize_token_get(axum::extract::Query(params): axum::extract::Query<AccountParams>) -> Html<String> {
+pub async fn authorize_token_get(Query(params): Query<AccountParams>) -> Html<String> {
     let callback = params.page.as_deref().unwrap_or("/");
     Html(format!(
         "<html><body><h1>Authorize Token</h1><p>Callback: {}</p></body></html>",

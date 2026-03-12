@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block header %}{% endblock header %}
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#575757">
+    <link title="Invidious" type="application/opensearchdescription+xml" rel="search" href="/opensearch.xml">
+    <link rel="stylesheet" href="/css/pure-min.css">
+    <link rel="stylesheet" href="/css/grids-responsive-min.css">
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <link rel="stylesheet" href="/css/default.css">
+    <link rel="stylesheet" href="/css/carousel.css">
+    <script src="/js/_helpers.js"></script>
+</head>
+
+<body class="{{ dark_mode }}-theme">
+    <span style="display:none" id="dark_mode_pref">{{ dark_mode }}</span>
+    <div class="pure-g">
+        <div class="pure-u-1 pure-u-xl-20-24" id="contents">
+            {% include "navbar.html" %}
+
+            {% if banner %}
+            <div class="h-box">
+                <h3>{{ banner }}</h3>
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock content %}
+
+            <footer>
+                <div class="pure-g">
+                    <div class="pure-u-1 pure-u-md-1-3">
+                        <span>
+                            <i class="icon ion-logo-github"></i>
+                            {% if modified_source_code_url %}
+                                <a href="https://github.com/iv-org/invidious">Original source code</a>/
+                                <a href="{{ modified_source_code_url }}">Modified source code</a>
+                            {% else %}
+                                <a href="https://github.com/iv-org/invidious">Source code</a>
+                            {% endif %}
+                        </span>
+                        <span>
+                            <i class="icon ion-ios-paper"></i>
+                            <a href="https://github.com/iv-org/documentation">Documentation</a>
+                        </span>
+                    </div>
+
+                    <div class="pure-u-1 pure-u-md-1-3">
+                        <span>
+                            <a href="https://github.com/iv-org/invidious/blob/master/LICENSE">Released under the AGPLv3 on Github.</a>
+                        </span>
+                        <span>
+                            <i class="icon ion-logo-javascript"></i>
+                            <a rel="jslicense" href="/licenses">View JavaScript license information.</a>
+                        </span>
+                        <span>
+                            <i class="icon ion-ios-paper"></i>
+                            <a href="/privacy">View privacy policy.</a>
+                        </span>
+                    </div>
+
+                    <div class="pure-u-1 pure-u-md-1-3">
+                        <span>
+                            <i class="icon ion-ios-wallet"></i>
+                            <a href="https://invidious.io/donate/">Donate</a>
+                        </span>
+                        <span>
+                            Current version: {{ version }}
+                        </span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script src="/js/handlers.js"></script>
+    <script src="/js/themes.js"></script>
+    {% if user %}
+        <script src="/js/sse.js"></script>
+    {% endif %}
+</body>
+
+</html>

@@ -98,8 +98,12 @@ async fn main() -> anyhow::Result<()> {
         tracing::warn!("No database configured, running without database");
     }
 
+    // Initialize template engine
+    let templates = invidious::templates::TemplateEngine::new("templates/**/*")?;
+    tracing::info!("Templates loaded successfully");
+
     // Create router
-    let app = invidious::routes::create_router(config);
+    let app = invidious::routes::create_router(config, templates);
 
     // Create address
     let addr: SocketAddr = format!("{}:{}", host, port)

@@ -1,0 +1,29 @@
+<div class="pure-u-1 pure-u-md-1-4">
+    <div class="h-box">
+        {% if not thin_mode %}
+            <a tabindex="-1" href="/channel/{{ channel.id }}">
+                <center>
+                    <img loading="lazy" style="width:56.25%" src="{{ channel.author_thumbnails[0].url }}" alt="" />
+                </center>
+            </a>
+        {% else %}
+            <div class="thumbnail-placeholder" style="width:56.25%"></div>
+        {% endif %}
+
+        <div class="video-card-row flexible">
+            <div class="flex-left"><a href="/channel/{{ channel.id }}">
+                <p class="channel-name" dir="auto">{{ channel.display_name }}
+                    {% if channel.is_verified %}&nbsp;<i class="icon ion ion-md-checkmark-circle"></i>{% endif %}
+                </p>
+            </a></div>
+        </div>
+
+        <p>{{ channel.subscriber_count }} subscribers</p>
+        {% if channel.video_count %}
+        <p>{{ channel.video_count }} videos</p>
+        {% endif %}
+        {% if channel.description %}
+        <h5>{{ channel.description }}</h5>
+        {% endif %}
+    </div>
+</div>

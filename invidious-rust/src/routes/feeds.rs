@@ -3,10 +3,13 @@
 //! Handles various feeds including trending, popular, subscriptions, and history.
 
 use axum::{
-    extract::{Path, Query},
+    extract::{Path, Query, Extension},
     response::{Html, Redirect},
 };
 use serde::Deserialize;
+
+use super::api::AppState;
+use crate::templates::BaseTemplateData;
 
 /// Query parameters for feed routes.
 #[derive(Debug, Deserialize)]
@@ -17,6 +20,8 @@ pub struct FeedParams {
     pub continuation: Option<String>,
     #[serde(default)]
     pub category: Option<String>,
+    #[serde(default)]
+    pub r#type: Option<String>,
 }
 
 /// View all playlists redirect handler.
@@ -30,22 +35,80 @@ pub async fn playlists() -> Html<&'static str> {
 }
 
 /// Popular feed handler.
-pub async fn popular() -> Html<&'static str> {
-    Html("<html><body><h1>Popular Videos</h1></body></html>")
+pub async fn popular(Extension(state): Extension<AppState>) -> Html<String> {
+    let base_data = BaseTemplateData {
+        current_page: "/feed/popular".to_string(),
+        ..Default::default()
+    };
+    
+    let feed_context = serde_json::json!({
+        "videos": [],
+        "page_title": "Popular",
+        "playlist_id": ""
+    });
+    
+    match state.templates.render_with_data("popular.html", &feed_context) {
+        Ok(content) => {
+            match state.templates.render_base(&content, &base_data) {
+                Ok(full) => Html(full),
+                Err(_) => Html("<html><body>Error rendering template</body></html>".to_string()),
+            }
+        }
+        Err(_) => Html("<html><body>Error loading template</body></html>".to_string()),
+    }
 }
 
 /// Trending feed handler.
-pub async fn trending(Query(params): Query<FeedParams>) -> Html<String> {
-    let category = params.category.as_deref().unwrap_or("music");
-    Html(format!(
-        "<html><body><h1>Trending: {}</h1></body></html>",
-        category
-    ))
+pub async fn trending(
+    Extension(state): Extension<AppState>,
+    Query(params): Query<FeedParams>,
+) -> Html<String> {
+    let trending_type = params.r#type.as_deref().unwrap_or("default");
+    
+    let base_data = BaseTemplateData {
+        current_page: "/feed/trending".to_string(),
+        ..Default::default()
+    };
+    
+    let feed_context = serde_json::json!({
+        "videos": [],
+        "page_title": "Trending",
+        "trending_type": trending_type,
+        "playlist_id": ""
+    });
+    
+    match state.templates.render_with_data("trending.html", &feed_context) {
+        Ok(content) => {
+            match state.templates.render_base(&content, &base_data) {
+                Ok(full) => Html(full),
+                Err(_) => Html("<html><body>Error rendering template</body></html>".to_string()),
+            }
+        }
+        Err(_) => Html("<html><body>Error loading template</body></html>".to_string()),
+    }
 }
 
 /// Subscriptions feed handler.
-pub async fn subscriptions() -> Html<&'static str> {
-    Html("<html><body><h1>Your Subscriptions</h1></body></html>")
+pub async fn subscriptions(Extension(state): Extension<AppState>) -> Html<String> {
+    let base_data = BaseTemplateData {
+        current_page: "/feed/subscriptions".to_string(),
+        ..Default::default()
+    };
+    
+    let feed_context = serde_json::json!({
+        "videos": [],
+        "playlist_id": ""
+    });
+    
+    match state.templates.render_with_data("subscriptions.html", &feed_context) {
+        Ok(content) => {
+            match state.templates.render_base(&content, &base_data) {
+                Ok(full) => Html(full),
+                Err(_) => Html("<html><body>Error rendering template</body></html>".to_string()),
+            }
+        }
+        Err(_) => Html("<html><body>Error loading template</body></html>".to_string()),
+    }
 }
 
 /// Watch history feed handler.

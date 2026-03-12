@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% if tab == "videos" %}
+<meta name="description" content="{{ channel.description | default(value=channel.display_name) }}">
+<meta property="og:site_name" content="Invidious">
+<meta property="og:url" content="/channel/{{ channel.id }}">
+<meta property="og:title" content="{{ channel.display_name }}">
+<meta property="og:image" content="{{ channel.author_thumbnails[0].url | default(value="/channel.png") }}">
+<meta property="og:description" content="{{ channel.description | default(value=channel.display_name) }}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:url" content="/channel/{{ channel.id }}">
+<meta name="twitter:title" content="{{ channel.display_name }}">
+<meta name="twitter:description" content="{{ channel.description | default(value=channel.display_name) }}">
+<meta name="twitter:image" content="{{ channel.author_thumbnails[0].url | default(value="/channel.png") }}">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/{{ channel.id }}" />
+{% endif %}
+
+<link rel="alternate" href="https://www.youtube.com/channel/{{ channel.id }}">
+<title>{{ channel.display_name }} - Invidious</title>
+{% endblock header %}
+
+{% block content %}
+{% include "components/channel_info.html" %}
+
+<div class="h-box">
+    <hr>
+</div>
+
+<div class="pure-g">
+{% block channel_content %}{% endblock channel_content %}
+</div>
+{% endblock content %}

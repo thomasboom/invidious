@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block header %}
+<meta name="thumbnail" content="{{ video.video_thumbnails.last.url }}">
+<meta name="description" content="{{ video.description | default(value=video.title) }}">
+<meta property="og:site_name" content="{{ video.author }} | Invidious">
+<meta property="og:url" content="/watch?v={{ video.id }}">
+<meta property="og:title" content="{{ video.title }}">
+<meta property="og:image" content="{{ video.video_thumbnails.last.url }}">
+<meta property="og:description" content="{{ video.description | default(value=video.title) }}">
+<meta property="og:type" content="video.other">
+<meta name="twitter:card" content="player">
+<meta name="twitter:url" content="/watch?v={{ video.id }}">
+<meta name="twitter:title" content="{{ video.title }}">
+<meta name="twitter:image" content="{{ video.video_thumbnails.last.url }}">
+<link rel="alternate" href="https://www.youtube.com/watch?v={{ video.id }}">
+<title>{{ video.title }} - Invidious</title>
+{% endblock header %}
+
+{% block content %}
+<div id="player-container" class="h-box">
+    <div class="video-player">
+        <video id="video-player" width="100%" controls>
+            <source src="/api/v1/videos/{{ video.id }}" type="video/mp4">
+        </video>
+    </div>
+</div>
+
+<div class="h-box">
+    <h1>
+        {{ video.title }}
+        {% if listen %}
+            <a title="Video mode" id="link-iv-listen" href="/watch?v={{ video.id }}&listen=0">
+                <i class="icon ion-ios-videocam"></i>
+            </a>
+        {% else %}
+            <a title="Audio mode" id="link-iv-listen" href="/watch?v={{ video.id }}&listen=1">
+                <i class="icon ion-md-headset"></i>
+            </a>
+        {% endif %}
+    </h1>
+
+    {% if video.paid %}
+    <h3>
+        <i class="icon ion-ios-unlock"></i> Paid
+    </h3>
+    {% endif %}
+
+    {% if video.is_upcoming %}
+    <h3>
+        Upcoming
+    </h3>
+    {% endif %}
+
+    {% if video.live_now %}
+    <h3>
+        <i class="icon ion-ios-play-circle"></i> Live
+    </h3>
+    {% endif %}
+</div>
+
+<div class="pure-g">
+    <div class="pure-u-1 pure-u-lg-1-5">
+        <div class="h-box">
+            <span id="watch-on-youtube">
+                <a id="link-yt-watch" rel="noreferrer noopener" href="https://www.youtube.com/watch?v={{ video.id }}">Watch on YouTube</a>
+                (<a id="link-yt-embed" rel="noopener" href="https://www.youtube.com/embed/{{ video.id }}">YouTube embed</a>)
+            </span>
+
+            <p id="embed-link">
+                <a id="link-iv-embed" href="/embed/{{ video.id }}">Invidious embed</a>
+            </p>
+
+            {% if user %}
+            <p id="views"><i class="icon ion-ios-eye"></i> {{ video.view_count | default(value=0) }}</p>
+            {% endif %}
+            <p id="likes"><i class="icon ion-ios-thumbs-up"></i> {{ video.like_count | default(value=0) }}</p>
+
+            {% if video.genre %}
+            <p id="genre">Genre: {{ video.genre }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="pure-u-1 {% if related_videos %}pure-u-lg-3-5{% else %}pure-u-md-4-5{% endif %}">
+
+        <div class="pure-g h-box flexible title">
+            <div class="pure-u-1-2 flex-left flexible">
+                <a href="/channel/{{ video.author_id }}">
+                    <div class="channel-profile">
+                        {% if video.author_thumbnails %}
+                        <img src="{{ video.author_thumbnails[0].url }}" alt="" />
+                        {% endif %}
+                        <span id="channel-name" class="channel-name">{{ video.author }}</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="pure-u-1-2 flex-right flexible button-container">
+                <div class="pure-u">
+                    <button class="pure-button pure-button-primary subscribe-button" data-channel-id="{{ video.author_id }}">
+                        Subscribe
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="h-box">
+            <p id="published-date">
+                <b>Shared {{ video.published }}</b>
+            </p>
+
+            <div id="description-box">
+                {% if video.description %}
+                <div id="descriptionWrapper">{{ video.description }}</div>
+                {% endif %}
+            </div>
+
+            <hr>
+
+            <div id="comments" class="comments">
+                <noscript>
+                    <a href="/watch?v={{ video.id }}&nojs=1">
+                        JavaScript is required to view comments.
+                    </a>
+                </noscript>
+            </div>
+        </div>
+    </div>
+
+    {% if related_videos %}
+    <div class="pure-u-1 pure-u-lg-1-5">
+        {% if related_videos %}
+        <div class="h-box">
+            {% if related_videos | length > 0 %}
+            <div class="pure-control-group">
+                <label for="continue">Continue watching</label>
+                <input name="continue" id="continue" type="checkbox" {% if continue_watching %}checked{% endif %}>
+            </div>
+            <hr>
+            {% endif %}
+
+            {% for rv in related_videos %}
+            <div class="pure-u-1">
+
+            <div class="thumbnail">
+                {% if not thin_mode %}
+                    <a tabindex="-1" href="/watch?v={{ rv.id }}">
+                        <img loading="lazy" class="thumbnail" src="/vi/{{ rv.id }}/mqdefault.jpg" alt="" />
+                    </a>
+                {% else %}
+                    <div class="thumbnail-placeholder"></div>
+                {% endif %}
+
+                <div class="bottom-right-overlay">
+                    {% if rv.length_seconds > 0 %}
+                        <p class="length">{{ rv.length_seconds | length_seconds }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="video-card-row">
+                <a href="/watch?v={{ rv.id }}"><p dir="auto">{{ rv.title }}</p></a>
+            </div>
+
+            <h5 class="pure-g">
+                <div class="pure-u-14-24">
+                    <b style="width:100%"><a href="/channel/{{ rv.author_id }}">{{ rv.author }}</a></b>
+                </div>
+
+                <div class="pure-u-10-24" style="text-align:right">
+                    <b class="width:100%">{{ rv.view_count | default(value=0) }} views</b>
+                </div>
+            </h5>
+
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}

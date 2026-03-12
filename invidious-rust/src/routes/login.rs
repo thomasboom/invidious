@@ -3,10 +3,13 @@
 //! Handles user login, signout, and session management.
 
 use axum::{
-    extract::{Form, Query},
+    extract::{Form, Query, Extension},
     response::Html,
 };
 use serde::Deserialize;
+
+use super::api::AppState;
+use crate::templates::BaseTemplateData;
 
 /// Login form data.
 #[derive(Debug, Deserialize)]
@@ -33,12 +36,32 @@ pub struct LoginParams {
 }
 
 /// Login page handler.
-pub async fn login_page(Query(params): Query<LoginParams>) -> Html<String> {
+pub async fn login_page(
+    Extension(state): Extension<AppState>,
+    Query(params): Query<LoginParams>,
+) -> Html<String> {
     let referer = params.r.as_deref().unwrap_or("/");
-    Html(format!(
-        "<html><body><h1>Login</h1><form method='post'><input name='email'/><input name='password' type='password'/><input type='submit'/></form><p>Referer: {}</p></body></html>",
-        referer
-    ))
+    
+    let base_data = BaseTemplateData {
+        current_page: "/login".to_string(),
+        ..Default::default()
+    };
+    
+    let login_context = serde_json::json!({
+        "referer": referer,
+        "csrf_token": "",
+        "error": ""
+    });
+    
+    match state.templates.render_with_data("login.html", &login_context) {
+        Ok(content) => {
+            match state.templates.render_base(&content, &base_data) {
+                Ok(full) => Html(full),
+                Err(_) => Html("<html><body>Error rendering template</body></html>".to_string()),
+            }
+        }
+        Err(_) => Html("<html><body>Error loading template</body></html>".to_string()),
+    }
 }
 
 /// Login handler.
